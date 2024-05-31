@@ -1,3 +1,9 @@
 pymongo
 werkzeug
 PyJWT
+flask
+flask_jwt_extended
+dotenv
+python-dotenv
+bcrypt
+Flask-CORS

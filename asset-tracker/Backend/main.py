@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 import os
 import bcrypt
 import hashlib
+from flask_cors import CORS
 
 load_dotenv()
 
@@ -22,6 +23,7 @@ DATABASE_URI = os.environ.get("DATABASE_URI")
 SECRET_KEY = os.environ.get("SECRET_KEY")  # Replace with a strong, random secret
 
 app = Flask(__name__)
+CORS(app)
 app.config["SECRET_KEY"] = SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=30)  # Customize expiration time
 
@@ -97,7 +99,8 @@ def login():
         return jsonify({"error": "Invalid username or password"}), 401
 
     access_token = create_access_token(identity=username)
-    return jsonify({"access_token": access_token})
+    return jsonify({"access_token": access_token,
+                    "username":data["username"]})
 
 # Protected route example (replace with your own logic)
 @app.route("/protected", methods=["GET"])
@@ -133,4 +136,4 @@ def getDeviceLogs():
     
     
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,port=8080,host="0.0.0.0")
