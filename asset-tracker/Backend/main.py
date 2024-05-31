@@ -7,8 +7,15 @@ from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity
 import urllib
 from dotenv import load_dotenv
 import os
+import bcrypt
+import hashlib
 
 load_dotenv()
+
+def generate_unsalted_hash(password, hash_function=hashlib.sha256):
+  """Generates an unsalted hash using a chosen hash function (not secure)."""
+  hashed_value = hash_function(password.encode())  # Encode to bytes for hashing
+  return hashed_value.hexdigest()
 
 # Replace with your MongoDB connection string
 DATABASE_URI = os.environ.get("DATABASE_URI")
@@ -110,7 +117,7 @@ def getDevicesByUserName():
     devices_collection.insert_one({
         "username":current_user,
         "deviceId":data.get("deviceId"),
-        "deviceAuthCode":generate_password_hash(data.get("deviceAuthCode"))
+        "deviceAuthCode":generate_unsalted_hash(data.get("deviceAuthCode"))
                                    })
     return jsonify({"message":"Device Created Successfully"})
 
