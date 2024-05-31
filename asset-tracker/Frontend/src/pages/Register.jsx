@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styled from "styled-components";
-import Logo from "../assets/chat-logo.jpeg";
 import axios from "axios";
 import { registerRoute } from "../utils/APIRoutes";
 

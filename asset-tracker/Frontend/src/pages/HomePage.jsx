@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -22,7 +23,12 @@ const HomePage = () => {
     fetchData();
   }, []);
 
-  return <h1>Welcome {currentUser}. This is your HomePage!!!</h1>;
+  return (
+    <>
+      {/* <h1>Welcome {currentUser}. This is your HomePage!!!</h1> */}
+      <Navbar />
+    </>
+  );
 };
 
 export default HomePage;
