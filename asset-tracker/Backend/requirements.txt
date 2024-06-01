@@ -7,3 +7,4 @@ dotenv
 python-dotenv
 bcrypt
 Flask-CORS
+bson

@@ -1,4 +1,5 @@
 from functools import wraps
+import json
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,6 +11,8 @@ import os
 import bcrypt
 import hashlib
 from flask_cors import CORS
+from bson.json_util import dumps
+from bson.json_util import loads
 
 load_dotenv()
 
@@ -131,9 +134,42 @@ def getDeviceLogs():
     data = request.get_json()
     if not data or not data.get("deviceId"):
         return jsonify({"error": "Missing required fields"}), 400
-    logs = device_logs_collection.find_one({"username": current_user,"deviceId":data.get("deviceId")})
-    return logs
+    logs = list(device_logs_collection.find({"deviceId":data.get("deviceId")}))
+    res = {
+        "deviceLogs":[]
+    }
+    if list(logs)==[]:
+        return jsonify(res)
     
+    for i in logs:
+        res["deviceLogs"].append({
+            "deviceId":i["deviceId"],
+            "locData":i["locData"]
+        })
+    return jsonify(res)
+    
+@app.route("/getDeviceList", methods=["POST"])
+@jwt_required()
+def getDeviceList():
+    current_user = get_jwt_identity()
+    data = request.get_json()
+    if not data or not data.get("username"):
+        return jsonify({"error": "Missing required fields"}), 400
+    devicesList = list(devices_collection.find({"username":current_user}))
+    res = {
+        "deviceList":[]
+    }
+    if list(devicesList)==[]:
+        return jsonify(res)
+    
+    for i in devicesList:
+        res["deviceList"].append({
+            "username":i["username"],
+            "deviceId":i["deviceId"]
+        })
+    
+    # for i in 
+    return jsonify(res)
     
 if __name__ == "__main__":
     app.run(debug=True,port=8080,host="0.0.0.0")
