@@ -101,7 +101,7 @@ def login():
     if not check_password_hash(user["password"], password):
         return jsonify({"error": "Invalid username or password"}), 401
 
-    access_token = create_access_token(identity=username)
+    access_token = create_access_token(identity=username,expires_delta=timedelta(days=1))
     return jsonify({"access_token": access_token,
                     "username":data["username"]})
 
@@ -136,18 +136,18 @@ def getDeviceLogs():
         return jsonify({"error": "Missing required fields"}), 400
     logs = list(device_logs_collection.find({"deviceId":data.get("deviceId")}))
     res = {
-        "deviceLogs":[]
+        "deviceId":data.get("deviceId"),
+        "locData":[]
     }
     if list(logs)==[]:
         return jsonify(res)
-    
+    print(logs)
     for i in logs:
-        res["deviceLogs"].append({
-            "deviceId":i["deviceId"],
-            "locData":i["locData"]
+        res["locData"].append({
+            "lat": i["locData"][0], "lon":i["locData"][1], "popup": str(i["_id"].generation_time) 
         })
     return jsonify(res)
-    
+
 @app.route("/getDeviceList", methods=["POST"])
 @jwt_required()
 def getDeviceList():
