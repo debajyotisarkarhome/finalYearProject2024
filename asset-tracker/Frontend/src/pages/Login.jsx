@@ -24,24 +24,34 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("asset-tracker-user")) navigate("/");
-  }, []);
+    if (localStorage.getItem("asset-tracker-user-info")) navigate("/");
+  },[]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (handleValidation()) {
       const { username, password } = values;
 
-      const { data } = await axios.post(loginRoute, {
-        username,
-        password,
-      });
+      try {
+        const data = await axios.post(loginRoute, {
+          username,
+          password,
+        });
 
-      if (data.status === false) {
-        toast.error(data.msg, toastOptions);
-      } else if (data.status === true) {
-        localStorage.setItem("asset-tracker-user", JSON.stringify(data.user));
-        navigate("/");
+        // console.log(data);
+
+        if (data.status === 200) {
+          localStorage.setItem(
+            "asset-tracker-user-info",
+            JSON.stringify([data.data.username, data.data.access_token])
+          );
+
+          navigate("/");
+        } else {
+          toast.error("Invalid username or password", toastOptions);
+        }
+      } catch (error) {
+        toast.error(error.response.data.error, toastOptions);
       }
     }
   };
@@ -120,7 +130,7 @@ const FormContainer = styled.div`
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  background-image: url("https://wallpaper.forfun.com/fetch/78/78e7575812d92d79bae20c0ad8ab85dd.jpeg");
+  background-image: url("/Background Image Login & Register.jpeg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -140,7 +150,7 @@ const FormContainer = styled.div`
       text-transform: uppercase;
     }
   }
-  
+
   form {
     display: flex;
     flex-direction: column;
@@ -188,4 +198,4 @@ const FormContainer = styled.div`
   }
 `;
 
-export default Login;
+export default React.memo(Login);

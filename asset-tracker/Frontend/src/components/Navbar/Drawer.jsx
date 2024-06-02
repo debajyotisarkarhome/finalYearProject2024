@@ -22,12 +22,31 @@ import LocalShippingTwoToneIcon from "@mui/icons-material/LocalShippingTwoTone";
 import AirplanemodeActiveTwoToneIcon from "@mui/icons-material/AirplanemodeActiveTwoTone";
 import CottageTwoToneIcon from "@mui/icons-material/CottageTwoTone";
 import MapsHomeWorkTwoToneIcon from "@mui/icons-material/MapsHomeWorkTwoTone";
-import { useState } from "react";
+import LaptopMacIcon from "@mui/icons-material/LaptopMac";
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getDeviceList, getDeviceLogs } from "../../utils/APIRoutes";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-export default function AnchorTemporaryDrawer() {
-  const [state, setState] = React.useState({
+const AnchorTemporaryDrawer = ({ setLocationMarkers, currentUser, token }) => {
+  const navigate = useNavigate();
+
+  const toastOptions = {
+    position: "bottom-right",
+    autoClose: 5000,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "dark",
+  };
+
+  const [state, setState] = useState({
     left: false,
   });
+
+  const [assetData, setAssetData] = useState(null);
 
   const toggleDrawer = (anchor, open) => (event) => {
     if (
@@ -41,68 +60,79 @@ export default function AnchorTemporaryDrawer() {
   };
 
   let allAssetData = [
-    {
-      name: "Car",
-      type: <DirectionsCarFilledTwoToneIcon />,
-      present: false,
-    },
-    {
-      name: "Bike",
-      type: <TwoWheelerTwoToneIcon />,
-      present: false,
-    },
-    {
-      name: "Cycle",
-      type: <PedalBikeTwoToneIcon />,
-      present: false,
-    },
-    {
-      name: "Train",
-      type: <DirectionsTransitTwoToneIcon />,
-      present: false,
-    },
-    {
-      name: "Truck",
-      type: <LocalShippingTwoToneIcon />,
-      present: false,
-    },
-    {
-      name: "Airplane",
-      type: <AirplanemodeActiveTwoToneIcon />,
-      present: false,
-    },
-    {
-      name: "Home",
-      type: <CottageTwoToneIcon />,
-      present: false,
-    },
-    {
-      name: "Apartment",
-      type: <MapsHomeWorkTwoToneIcon />,
-      present: false,
-    },
+    <TwoWheelerTwoToneIcon />,
+    <DirectionsCarFilledTwoToneIcon />,
+    <PedalBikeTwoToneIcon />,
+    <DirectionsTransitTwoToneIcon />,
+    <LocalShippingTwoToneIcon />,
+    <AirplanemodeActiveTwoToneIcon />,
+    <CottageTwoToneIcon />,
+    <MapsHomeWorkTwoToneIcon />,
+    <LaptopMacIcon />,
   ];
 
-  localStorage.setItem("asset-data", [
-    "Car",
-    "Cycle",
-    "Truck",
-    "Bike",
-    "Train", 
-    "Apartment",
-  ]);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const data = await axios.post(
+          getDeviceList,
+          {
+            username: currentUser,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        // console.log(data.data.deviceList);
 
-  let assetData = localStorage.getItem("asset-data").split(",");
-  console.log(assetData);
+        if (data.status === 200) {
+          setAssetData(data.data.deviceList);
+        } else {
+          toast.error("Please try again...", toastOptions);
+        }
+      } catch (error) {
+        toast.error(error.response.data.error, toastOptions);
+      }
+    }
+    currentUser && fetchData();
+  }, []);
 
-  if (assetData)
-    assetData.map((data) => {
-      let ind = allAssetData.findIndex((p) => p.name === data.trim());
-      if (ind) 
-        allAssetData = [...allAssetData, (allAssetData[ind].present = true)];
-    });
+  let allAssetDataLength = allAssetData.length;
 
-  console.log(assetData[0].present);
+  const [selectedIndex, setSelectedIndex] = React.useState(null);
+
+  const handleListItemClick = (event, index) => {
+    setSelectedIndex(index);
+  };
+
+  const handleOnClickAssetData = async (deviceId) => {
+    try {
+      // console.log(deviceId);
+
+      const data = await axios.post(
+        getDeviceLogs,
+        {
+          deviceId: "dasdasassd",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // console.log(data.data.locData);
+
+      if (data.status === 200) {
+        setLocationMarkers(JSON.stringify(data.data));
+      } else {
+        toast.error(data.data.deviceList, toastOptions);
+      }
+
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.error, toastOptions);
+    }
+  };
 
   const list = (anchor) => (
     <Box
@@ -127,11 +157,11 @@ export default function AnchorTemporaryDrawer() {
         >
           <Box sx={{ p: 1.5 }}>
             <Fab size="small" color="primary" aria-label="add">
-              <AddIcon />
+              <AddIcon onClick={handleOnClickAddAsset} />
             </Fab>
           </Box>
-          <Box sx={{ paddingTop: 3 }}>
-            <h3>Add Assets</h3>
+          <Box sx={{ paddingTop: 3, cursor: "pointer" }}>
+            <h3 onClick={handleOnClickAddAsset}>Add Assets</h3>
           </Box>
         </Box>
         <Box sx={{ display: "flex", flexDirection: "row-reverse", p: 1.5 }}>
@@ -141,19 +171,35 @@ export default function AnchorTemporaryDrawer() {
         </Box>
       </Box>
 
-      <List>
-        {allAssetData.map((data, index) => {
-          if (data.present)
+      {assetData && (
+        <List>
+          {assetData.map((data, index) => {
             return (
-              <ListItem key={index} disablePadding>
-                <ListItemButton>
-                  <ListItemIcon>{data.type}</ListItemIcon>
-                  <ListItemText primary={data.name} />
-                </ListItemButton>
-              </ListItem>
+              <div
+                style={{
+                  backgroundColor: selectedIndex === index ? "skyblue" : "",
+                }}
+                key={index}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={(event) => handleListItemClick(event, index)}
+                  >
+                    <ListItemIcon>
+                      <RadioButtonCheckedIcon/>
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={data.deviceId}
+                      onClick={() => handleOnClickAssetData(data.deviceId)}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </div>
             );
-        })}
-      </List>
+          })}
+        </List>
+      )}
+
       <Divider />
       <List>
         {["All mail", "Trash", "Spam"].map((text, index) => (
@@ -169,6 +215,10 @@ export default function AnchorTemporaryDrawer() {
       </List>
     </Box>
   );
+
+  const handleOnClickAddAsset = () => {
+    navigate("/addDevice");
+  };
 
   return (
     <div>
@@ -197,4 +247,15 @@ export default function AnchorTemporaryDrawer() {
       ))}
     </div>
   );
-}
+};
+
+// import React from 'react'
+
+// const Drawer = () => {
+//   return (
+//     <div>Drawer</div>
+//   )
+// }
+
+// export default Drawer
+export default React.memo(AnchorTemporaryDrawer);

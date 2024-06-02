@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styled from "styled-components";
 import axios from "axios";
 import { registerRoute } from "../utils/APIRoutes";
+import { useEffect } from "react";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -25,26 +26,26 @@ const Register = () => {
     theme: "dark",
   };
 
-  useEffect(() => {
-    if (localStorage.getItem("asset-tracker-user")) navigate("/");
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (handleValidation()) {
       const { username, email, password } = values;
+      try {
+        const data = await axios.post(registerRoute, {
+          username,
+          email,
+          password,
+        });
 
-      const { data } = await axios.post(registerRoute, {
-        username,
-        email,
-        password,
-      });
+        console.log(data);
 
-      if (data.status === false) {
-        toast.error(data.msg, toastOptions);
-      } else if (data.status === true) {
-        localStorage.setItem("asset-tracker-user", JSON.stringify(data.user));
-        navigate("/");
+        if (data.status === 201) {
+          navigate("/login");
+        } else {
+          toast.error(data.message, toastOptions);
+        }
+      } catch (error) {
+        toast.error(error.response.data.error, toastOptions);
       }
     }
   };
@@ -86,12 +87,16 @@ const Register = () => {
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
+
+  useEffect(() => {
+    if (localStorage.getItem("asset-tracker-user-info")) navigate("/");
+  }, []);
+
   return (
     <>
       <FormContainer>
         <form action="" onSubmit={handleSubmit}>
           <div className="brand">
-            {/* <img src={Logo} alt="" /> */}
             <h1>ASSET TRACKER</h1>
           </div>
 
@@ -156,7 +161,7 @@ const FormContainer = styled.div`
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  background-image: url("https://wallpaper.forfun.com/fetch/78/78e7575812d92d79bae20c0ad8ab85dd.jpeg");
+  background-image: url("/Background Image Login & Register.jpeg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -222,4 +227,4 @@ const FormContainer = styled.div`
   }
 `;
 
-export default Register;
+export default React.memo(Register);

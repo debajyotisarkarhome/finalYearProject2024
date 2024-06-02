@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import AppBar from "../components/Navbar/AppBar";
+import MapComponent from "../components/Map/Map";
+// import TestMap from "../components/Map/test";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState(undefined);
+  const [locationMarkers, setLocationMarkers] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        if (!localStorage.getItem("asset-tracker-user")) {
+        if (!localStorage.getItem("asset-tracker-user-info")) {
           navigate("/login");
-        } else {
-          setCurrentUser(
-            await JSON.parse(localStorage.getItem("asset-tracker-user"))
-          );
         }
       } catch (error) {
         console.log(error);
@@ -23,12 +21,26 @@ const HomePage = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (localStorage.getItem("asset-tracker-user-info")) navigate("/");
+  }, []);
+
   return (
     <>
-      {/* <h1>Welcome {currentUser}. This is your HomePage!!!</h1> */}
-      <Navbar />
+      <AppBar setLocationMarkers={setLocationMarkers} />
+      {locationMarkers} ? <MapComponent locationMarkers={locationMarkers} /> :
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height:"100vh"
+        }}
+      >
+        <h1>◀️ Select a device from the menu</h1>
+      </div>
     </>
   );
 };
 
-export default HomePage;
+export default React.memo(HomePage);

@@ -12,11 +12,42 @@ import MenuItem from "@mui/material/MenuItem";
 import AnchorTemporaryDrawer from "./Drawer";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getDeviceList } from "../../utils/APIRoutes";
+import axios from "axios";
 
-function ResponsiveAppBar() {
+const ResponsiveAppBar = ({ setLocationMarkers }) => {
   const navigate = useNavigate();
+  // console.log("appbar - token",token);
 
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [currentUser, setCurrentUser] = useState(undefined);
+  const [token, setToken] = useState(false);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        if (!localStorage.getItem("asset-tracker-user-info")) {
+          navigate("/login");
+        } else {
+          const data = await JSON.parse(
+            localStorage.getItem("asset-tracker-user-info").split(",")
+          );
+          // console.log(data);
+
+          setCurrentUser(data[0]);
+
+          setToken(data[1]);
+
+          // console.log("home - ", data[0], data[1]);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const [anchorElUser, setAnchorElUser] = useState(null);
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -27,70 +58,71 @@ function ResponsiveAppBar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("asset-tracker-user");
+    localStorage.removeItem("asset-tracker-user-info");
     navigate("/login");
   };
 
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <AnchorTemporaryDrawer />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              m: 2,
-              display: { xs: "flex" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            ASSET TRACKER
-          </Typography>
+    currentUser && (
+      <AppBar position="fixed">
+        <Container maxWidth="xl">
+          <Toolbar disableGutters>
+            <AnchorTemporaryDrawer setLocationMarkers={setLocationMarkers} currentUser={currentUser} token={token} />
 
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={localStorage.getItem("asset-tracker-user")} src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
+            <Typography
+              variant="h5"
+              noWrap
+              component="a"
+              href="#app-bar-with-responsive-menu"
+              sx={{
+                m: 2,
+                display: { xs: "flex" },
+                flexGrow: 1,
+                fontFamily: "monospace",
+                fontWeight: 700,
+                letterSpacing: ".3rem",
+                color: "inherit",
+                textDecoration: "none",
               }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
             >
-              <MenuItem sx={{justifyContent: "center"}}>
-                <Typography>
-                  {localStorage.getItem("asset-tracker-user")}
-                </Typography>
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                <LogoutIcon sx={{ marginRight: 2 }} />
-                <Typography textAlign="center">Logout</Typography>
-              </MenuItem>
-            </Menu>
-          </Box>
-        </Toolbar>
-      </Container>
-    </AppBar>
+              ASSET TRACKER
+            </Typography>
+
+            <Box sx={{ flexGrow: 0 }}>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt={currentUser} src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                <MenuItem sx={{ justifyContent: "center" }}>
+                  <Typography>{currentUser}</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>
+                  <LogoutIcon sx={{ marginRight: 2 }} />
+                  <Typography textAlign="center">Logout</Typography>
+                </MenuItem>
+              </Menu>
+            </Box>
+          </Toolbar>
+        </Container>
+      </AppBar>
+    )
   );
-}
-export default ResponsiveAppBar;
+};
+export default React.memo(ResponsiveAppBar);
