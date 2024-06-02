@@ -137,15 +137,21 @@ def getDeviceLogs():
     logs = list(device_logs_collection.find({"deviceId":data.get("deviceId")}))
     res = {
         "deviceId":data.get("deviceId"),
-        "locData":[]
+        "locData":[],
+        "centrePoint":None
     }
     if list(logs)==[]:
         return jsonify(res)
     print(logs)
+    latsum=0
+    lonsum=0
     for i in logs:
         res["locData"].append({
             "lat": i["locData"][0], "lon":i["locData"][1], "popup": str(i["_id"].generation_time) 
-        })
+        }) 
+        latsum=latsum+i["locData"][0]
+        lonsum=lonsum+i["locData"][1]
+    res["centrePoint"]=[latsum/len(logs),lonsum/len(logs)]
     return jsonify(res)
 
 @app.route("/getDeviceList", methods=["POST"])
