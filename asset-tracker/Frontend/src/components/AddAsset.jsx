@@ -8,7 +8,6 @@ import { addDeviceRoute } from "../utils/APIRoutes";
 import { v4 as uuid } from "uuid";
 
 const AddAsset = () => {
-  // console.log("add asset- ",username);
   const navigate = useNavigate();
 
   const [currentUser, setCurrentUser] = useState(undefined);
@@ -24,13 +23,11 @@ const AddAsset = () => {
           const data = await JSON.parse(
             localStorage.getItem("asset-tracker-user-info").split(",")
           );
-          // console.log(data);
 
           setCurrentUser(data[0]);
 
           setToken(data[1]);
 
-          // console.log("home - ", data[0], data[1]);
         }
       } catch (error) {
         console.log(error);
@@ -101,7 +98,6 @@ const AddAsset = () => {
 
   const uuidFromUuidV4 = () => {
     const newUuid = uuid();
-    // console.log(newUuid);
 
     setDeviceAuthCode(newUuid);
     console.log("add asset -", deviceAuthCode);
@@ -118,7 +114,6 @@ const AddAsset = () => {
       <FormContainer>
         <form action="" onSubmit={handleSubmit}>
           <div className="brand">
-            {/* <img src={Logo} alt="" /> */}
             <h1>ASSET TRACKER</h1>
           </div>
 
@@ -177,7 +172,6 @@ const FormContainer = styled.div`
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
-  /* background-color: #1313247e; */
   .brand {
     display: flex;
     justify-content: center;

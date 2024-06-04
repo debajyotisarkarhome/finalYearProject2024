@@ -14,16 +14,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import DirectionsCarFilledTwoToneIcon from "@mui/icons-material/DirectionsCarFilledTwoTone";
-import TwoWheelerTwoToneIcon from "@mui/icons-material/TwoWheelerTwoTone";
-import PedalBikeTwoToneIcon from "@mui/icons-material/PedalBikeTwoTone";
-import DirectionsTransitTwoToneIcon from "@mui/icons-material/DirectionsTransitTwoTone";
-import LocalShippingTwoToneIcon from "@mui/icons-material/LocalShippingTwoTone";
-import AirplanemodeActiveTwoToneIcon from "@mui/icons-material/AirplanemodeActiveTwoTone";
-import CottageTwoToneIcon from "@mui/icons-material/CottageTwoTone";
-import MapsHomeWorkTwoToneIcon from "@mui/icons-material/MapsHomeWorkTwoTone";
-import LaptopMacIcon from "@mui/icons-material/LaptopMac";
-import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDeviceList, getDeviceLogs } from "../../utils/APIRoutes";
@@ -59,18 +50,6 @@ const AnchorTemporaryDrawer = ({ setLocationMarkers, currentUser, token }) => {
     setState({ ...state, [anchor]: open });
   };
 
-  let allAssetData = [
-    <TwoWheelerTwoToneIcon />,
-    <DirectionsCarFilledTwoToneIcon />,
-    <PedalBikeTwoToneIcon />,
-    <DirectionsTransitTwoToneIcon />,
-    <LocalShippingTwoToneIcon />,
-    <AirplanemodeActiveTwoToneIcon />,
-    <CottageTwoToneIcon />,
-    <MapsHomeWorkTwoToneIcon />,
-    <LaptopMacIcon />,
-  ];
-
   useEffect(() => {
     async function fetchData() {
       try {
@@ -83,7 +62,6 @@ const AnchorTemporaryDrawer = ({ setLocationMarkers, currentUser, token }) => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        // console.log(data.data.deviceList);
 
         if (data.status === 200) {
           setAssetData(data.data.deviceList);
@@ -96,8 +74,6 @@ const AnchorTemporaryDrawer = ({ setLocationMarkers, currentUser, token }) => {
     }
     currentUser && fetchData();
   }, []);
-
-  let allAssetDataLength = allAssetData.length;
 
   const [selectedIndex, setSelectedIndex] = React.useState(null);
 
@@ -112,14 +88,13 @@ const AnchorTemporaryDrawer = ({ setLocationMarkers, currentUser, token }) => {
       const data = await axios.post(
         getDeviceLogs,
         {
-          deviceId: "dasdasassd",
+          deviceId,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      // console.log(data.data.locData);
 
       if (data.status === 200) {
         setLocationMarkers(JSON.stringify(data.data));
@@ -171,7 +146,7 @@ const AnchorTemporaryDrawer = ({ setLocationMarkers, currentUser, token }) => {
         </Box>
       </Box>
 
-      {assetData && (
+      {assetData ? (
         <List>
           {assetData.map((data, index) => {
             return (
@@ -186,7 +161,7 @@ const AnchorTemporaryDrawer = ({ setLocationMarkers, currentUser, token }) => {
                     onClick={(event) => handleListItemClick(event, index)}
                   >
                     <ListItemIcon>
-                      <RadioButtonCheckedIcon/>
+                      <RadioButtonCheckedIcon />
                     </ListItemIcon>
                     <ListItemText
                       primary={data.deviceId}
@@ -198,21 +173,9 @@ const AnchorTemporaryDrawer = ({ setLocationMarkers, currentUser, token }) => {
             );
           })}
         </List>
+      ) : (
+        <></>
       )}
-
-      <Divider />
-      <List>
-        {["All mail", "Trash", "Spam"].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
     </Box>
   );
 
@@ -221,7 +184,7 @@ const AnchorTemporaryDrawer = ({ setLocationMarkers, currentUser, token }) => {
   };
 
   return (
-    <div>
+    <>
       {["left"].map((anchor) => (
         <React.Fragment key={anchor}>
           {/* <Button onClick={toggleDrawer(anchor, true)}> */}
@@ -245,17 +208,8 @@ const AnchorTemporaryDrawer = ({ setLocationMarkers, currentUser, token }) => {
           </Drawer>
         </React.Fragment>
       ))}
-    </div>
+    </>
   );
 };
 
-// import React from 'react'
-
-// const Drawer = () => {
-//   return (
-//     <div>Drawer</div>
-//   )
-// }
-
-// export default Drawer
 export default React.memo(AnchorTemporaryDrawer);

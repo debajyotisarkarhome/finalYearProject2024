@@ -38,7 +38,6 @@ const Login = () => {
           password,
         });
 
-        // console.log(data);
 
         if (data.status === 200) {
           localStorage.setItem(
@@ -84,7 +83,6 @@ const Login = () => {
       <FormContainer>
         <form action="" onSubmit={handleSubmit}>
           <div className="brand">
-            {/* <img src={Logo} alt="" /> */}
             <h1>ASSET TRACKER</h1>
           </div>
 
@@ -134,7 +132,6 @@ const FormContainer = styled.div`
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  /* background-color: #131324; */
 
   .brand {
     display: flex;

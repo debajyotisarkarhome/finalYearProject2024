@@ -28,17 +28,20 @@ const HomePage = () => {
   return (
     <>
       <AppBar setLocationMarkers={setLocationMarkers} />
-      {locationMarkers} ? <MapComponent locationMarkers={locationMarkers} /> :
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height:"100vh"
-        }}
-      >
-        <h1>◀️ Select a device from the menu</h1>
-      </div>
+      {locationMarkers ? (
+        <MapComponent locationMarkers={locationMarkers} />
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <h1>◀️ Select a device from the menu</h1>
+        </div>
+      )}
     </>
   );
 };
